@@ -5,8 +5,9 @@
 @time: 2017/11/10 上午10:44
 '''
 
-from test_env import set_log
-from test_env import set_driver
+from test_env.set_driver import init_driver,admin_login
+from test_env.set_log import init_log
+from test_env.set_env import test_env
 import unittest
 from time import sleep
 
@@ -15,19 +16,19 @@ class TestTS2384(unittest.TestCase):
     '''测试全局BUG：TS-2384'''
 
     def setUp(self):
-        self.driver = set_driver.init_driver()
-        self.log = set_log.init_log("TS-2384")
-        self.env = 0  # 0为线上环境，1为测试环境
+        self.driver = init_driver()
+        self.log = init_log("TS-2384")
+        self.env = test_env()
         self.js_code = "><script>alert('test -> TS-2384')</script><"
 
     def test_ts_2384(self):
         driver = self.driver
         log = self.log
         if self.env == 0:
-            set_driver.admin_login(driver, "brazil.udesk.cn")
+            admin_login(driver, "brazil.udesk.cn")
             log.debug("设定测试环境为brazil.udesk.cn")
         else:
-            set_driver.admin_login(driver, "linapp.udeskt1.com")
+            admin_login(driver, "linapp.udeskt1.com")
             log.debug("设定测试环境为linapp.udeskt1.com")
         o = 0
         while o < 10:
@@ -52,7 +53,7 @@ class TestTS2384(unittest.TestCase):
         i = 0
         while i < 10:
             try:
-                driver.find_elements_by_xpath("//td[@class=' ticket-list-subject']")[0].click()
+                driver.find_element_by_class_name("subject").click()
                 break
             except:
                 sleep(1)

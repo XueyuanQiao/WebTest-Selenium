@@ -4,7 +4,9 @@
 @author: Qiaoxueyuan
 @time: 2017/8/17 15:34
 '''
-from test_env import *
+from test_env.set_driver import init_driver, qiao_login
+from test_env.set_log import init_log
+from test_env.set_env import test_env
 import unittest
 import time
 
@@ -13,9 +15,9 @@ class TestTS1977(unittest.TestCase):
     '''测试全局Bug：TS-1977'''
 
     def setUp(self):
-        self.driver = set_driver.init_driver()
-        self.log = set_log.init_log("TS1977")
-        self.env = 1  # 线上环境为0，测试环境为1
+        self.driver = init_driver()
+        self.log = init_log("TS1977")
+        self.env = test_env()
 
     def test_ts_1977(self):
         '''测试步骤：1.客服修改邮件渠道的工单的优先级和标签;2.判断该工单的“添加满意度调查”选项是否还存在'''
@@ -25,11 +27,11 @@ class TestTS1977(unittest.TestCase):
         if self.env == 0:
             url = "brazil.udesk.cn"
             log.debug("设定测试环境为\"%s\"" % url)
-            set_driver.qiao_login(driver,url)
+            qiao_login(driver, url)
         else:
             url = "linapp.udeskt1.com"
             log.debug("设定测试环境为\"%s\"" % url)
-            set_driver.qiao_login(driver, url)
+            qiao_login(driver, url)
         try:
             driver.implicitly_wait(20)
             driver.find_element_by_xpath("//li[@rel='ticket.list.index']").click()
@@ -53,7 +55,7 @@ class TestTS1977(unittest.TestCase):
             time.sleep(3)
             driver.find_element_by_xpath("//span[@title=\"渠道\"]").click()
             time.sleep(3)
-            way = driver.find_element_by_xpath("//div[@class='list-table-scroll scrollbar']/table/tbody/tr[1]/td[7]")
+            way = driver.find_element_by_xpath("/html/body/div[5]/div/div[1]/div[1]/div[3]/div/table/tbody/tr[1]/td[5]")
             if "邮件" in way.text:
                 log.debug("成功取到邮件渠道的工单，点击进入该工单详情")
                 way.click()

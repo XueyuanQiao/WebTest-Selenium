@@ -4,7 +4,9 @@
 @author: Qiaoxueyuan
 @time: 2017/8/16 16:10
 '''
-from test_env import *
+from test_env.set_driver import init_driver,admin_login
+from test_env.set_log import init_log
+from test_env.set_env import test_env
 import unittest
 import time
 
@@ -13,9 +15,9 @@ class TestTS1986(unittest.TestCase):
     '''测试全局Bug：TS-1986'''
 
     def setUp(self):
-        self.driver = set_driver.init_driver()
-        self.log = set_log.init_log("TS1986")
-        self.env = 1  # 线上环境为0，测试环境为1
+        self.driver = init_driver()
+        self.log = init_log("TS1986")
+        self.env = test_env()
 
     def test_ts_1986(self):
         '''测试步骤：1.批量选中工单;2.批量更新工单状态，检查前端显示是否正确'''
@@ -24,11 +26,11 @@ class TestTS1986(unittest.TestCase):
         if self.env == 0:
             url = "brazil.udesk.cn"
             log.debug("设定测试环境为\"%s\"" % url)
-            set_driver.admin_login(driver, url)
+            admin_login(driver, url)
         else:
             url = "linapp.udeskt1.com"
             log.debug("设定测试环境为\"%s\"" % url)
-            set_driver.admin_login(driver, url)
+            admin_login(driver, url)
         try:
             driver.implicitly_wait(20)
             driver.find_element_by_xpath("/html/body/div[3]/div[3]/div/ul/li[2]").click()
@@ -121,7 +123,7 @@ class TestTS1986(unittest.TestCase):
             i = 1
             while True:
                 text = driver.find_element_by_xpath(
-                    "//table[@class='table table-hover']/tbody/tr[%d]/td[%d]/span" % (
+                    "/html/body/div[5]/div/div[1]/div[1]/div[3]/div/table/tbody/tr[%d]/td[%d]/span" % (
                         i, status_column)).text
                 if text == "解决中":
                     i += 1
@@ -155,7 +157,7 @@ class TestTS1986(unittest.TestCase):
             i = 1
             while True:
                 text = driver.find_element_by_xpath(
-                    "//table[@class='table table-hover']/tbody/tr[%d]/td[%d]/span" % (
+                    "/html/body/div[5]/div/div[1]/div[1]/div[3]/div/table/tbody/tr[%d]/td[%d]/span" % (
                         i, status_column)).text
                 if text == "已解决":
                     i += 1
@@ -189,7 +191,7 @@ class TestTS1986(unittest.TestCase):
             i = 1
             while True:
                 text = driver.find_element_by_xpath(
-                    "//table[@class='table table-hover']/tbody/tr[%d]/td[%d]/span" % (
+                    "/html/body/div[5]/div/div[1]/div[1]/div[3]/div/table/tbody/tr[%d]/td[%d]/span" % (
                     i, status_column)).text
                 if text == "已关闭":
                     i += 1

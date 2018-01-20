@@ -10,6 +10,7 @@
 from selenium import webdriver
 from selenium import common
 
+
 def init_driver():
     driver = webdriver.Chrome()
     driver.maximize_window()
@@ -20,21 +21,19 @@ def admin_login(driver, url):
     driver.get("http://%s/hc" % url)
     driver.find_element_by_xpath("//*[@href=\"/users/sign_in\"]").click()
     driver.find_element_by_id("user_email").send_keys("admin@%s" % url)
-    driver.find_element_by_id("user_password").send_keys("****")
+    driver.find_element_by_id("user_password").send_keys("password")
     try:
-      driver.find_element_by_xpath("//*[@value=\"登 录\"]").click()
+        driver.find_element_by_xpath("//*[@value=\"登 录\"]").click()
     except common.exceptions.NoSuchElementException:
         driver.find_element_by_xpath("//*[@value=\"Login in\"]").click()
-
 
 
 def qiao_login(driver, url):
     driver.get("http://%s/hc" % url)
     driver.find_element_by_xpath("//*[@href=\"/users/sign_in\"]").click()
     driver.find_element_by_id("user_email").send_keys("qiaoxueyuan@%s" % url)
-    driver.find_element_by_id("user_password").send_keys("****")
+    driver.find_element_by_id("user_password").send_keys("password")
     try:
         driver.find_element_by_xpath("//*[@value=\"登 录\"]").click()
     except common.exceptions.NoSuchElementException:
         driver.find_element_by_xpath("//*[@value=\"Login in\"]").click()
-

@@ -4,18 +4,20 @@
 @author: Qiaoxueyuan
 @time: 2017/8/2 10:00
 '''
-from test_env import *
+from test_env.set_driver import init_driver,admin_login
+from test_env.set_log import init_log
+from test_env.set_env import test_env
+from test_env.set_random import random_string
 import unittest
 import time
-
 
 class TestTs1923(unittest.TestCase):
     '''测试全局Bug：TS-1923'''
 
     def setUp(self):
-        self.driver = set_driver.init_driver()
-        self.log = set_log.init_log("Ts1923")
-        self.env = 0  # 线上环境为0，测试环境为1
+        self.driver = init_driver()
+        self.log = init_log("Ts1923")
+        self.env = test_env()
 
     def test_Ts1923(self):
         '''测试步骤：1.新建员工组;2.新建员工（属于新建的客服组）;3.删除新建的客服;4.删除新建的客服组;5.确认是否删除成功'''
@@ -26,11 +28,11 @@ class TestTs1923(unittest.TestCase):
             if self.env == 0:
                 url = "brazil.udesk.cn"
                 log.debug("设定测试环境为\"%s\"" % url)
-                set_driver.admin_login(driver, url)
+                admin_login(driver, url)
             else:
                 url = "linapp.udeskt1.com"
                 log.debug("设定测试环境为\"%s\"" % url)
-                set_driver.admin_login(driver, url)
+                admin_login(driver, url)
                 driver.implicitly_wait(5)
             driver.find_element_by_xpath("//*[@href=\"/entry/\"]")
         except:
@@ -39,7 +41,7 @@ class TestTs1923(unittest.TestCase):
         # 转到管理中心页面
         try:
             driver.implicitly_wait(10)
-            driver.find_element_by_xpath("/html/body/div[3]/div[3]/div/ul/li[9]").click()
+            driver.find_element_by_xpath("/html/body/div[3]/div[3]/div/ul/li[8]").click()
             driver.implicitly_wait(5)
         except:
             self.assertTrue(False, "管理中心进入失败")
@@ -57,7 +59,7 @@ class TestTs1923(unittest.TestCase):
         log.debug("员工组页面进入成功")
         try:
             # 设置员工组名称
-            group = set_random.random_string()
+            group = random_string()
             driver.find_element_by_xpath("//input[@placeholder='员工组名称']").send_keys(group)
             time.sleep(1)
             driver.find_element_by_xpath("//button[@data-style='zoom-in' and text()='确定']").click()
@@ -77,14 +79,14 @@ class TestTs1923(unittest.TestCase):
         log.debug("员工列表页面进入成功")
         try:
             # 定义随机字符串
-            agent_email = set_random.random_string()
+            agent_email = random_string()
             # 创建邮箱
             driver.find_element_by_xpath("//*[@placeholder=\"邮箱\"]").send_keys(agent_email + "@udesk.cn")
             # 创建密码
             driver.find_element_by_xpath(
                 "/html/body/div[5]/div/div/div[1]/div[2]/form/ul/li[2]/div[2]/input[2]").send_keys("password123")
             # 创建姓名
-            agent_name = set_random.random_string()
+            agent_name = random_string()
             driver.find_element_by_xpath("//*[@placeholder=\"姓名\"]").send_keys(agent_name)
             log.debug("新建员工%s" % agent_name)
             # 设置员工角色，选择下拉框第一个
@@ -93,24 +95,7 @@ class TestTs1923(unittest.TestCase):
             # 设置员工组，选择刚才新建的
             driver.find_element_by_xpath(
                 "/html/body/div[5]/div/div/div[1]/div[2]/form/ul/li[9]/div[2]/div/ul/li/input").click()
-            i = 1
-            # 先获取当前员工组的总数
-            # while True:
-            #     try:
-            #         driver.find_element_by_xpath("/html/body/div[12]/ul/li[%d]" % i)
-            #         i = i + 1
-            #     except:
-            #         break
-            # #取出刚刚创建的员工组
-            # for s in range(1, i):
             try:
-                # a = driver.find_element_by_xpath("/html/body/div[12]/ul/li[%d]/div" % i)
-                # if a.text == group:
-                #     a.click()
-                #     log.debug("设置员工%s的员工组为%s" % (agent_name, group))
-                #     break
-                # else:
-                #     i = i + 1
                 a = driver.find_element_by_xpath("//div[@class='select2-result-label' and text()='%s']" % group)
                 a.click()
             except:
@@ -143,21 +128,21 @@ class TestTs1923(unittest.TestCase):
             while True:
                 try:
                     b = driver.find_element_by_xpath(
-                        "//div[@class='row']/div[2]/div[3]/table/tbody/tr[%s]/td[4]" % s)
+                        "/html/body/div[5]/div/div/div[1]/div[2]/div[2]/div[3]/table/tbody/tr[%d]/td[4]" % s)
                     if b.text == agent_name:
                         driver.find_element_by_xpath(
-                            "//div[@class='row']/div[2]/div[3]/table/tbody/tr[%s]/td[16]/div/a[3]" % s).click()
+                            "/html/body/div[5]/div/div/div[1]/div[2]/div[2]/div[3]/table/tbody/tr[%d]/td[15]/div/a[3]" % s).click()
                         log.debug("成功点击员工%s删除按钮" % agent_name)
                         time.sleep(2)
                         return True
                     else:
                         s = s + 1
-                except :
+                except:
                     try:
                         log.debug("当前页未找到客服%s，进入下一页寻找" % agent_name)
                         driver.implicitly_wait(10)
                         driver.find_element_by_xpath(
-                            "//a[@class='next' and text()='下一页']").click()
+                            "/html/body/div[5]/div/div/div[1]/div[2]/div[2]/div[4]/div[2]/div[1]/div/a[2]").click()
                         return False
                     except:
                         self.assertTrue(False, "员工%s未找到，删除失败" % agent_name)

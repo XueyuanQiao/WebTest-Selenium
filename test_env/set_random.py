@@ -4,7 +4,7 @@
 @author: Qiaoxueyuan
 @time: 2017/8/21 14:34
 '''
-import random, string
+import random
 
 
 def random_string(num=5):

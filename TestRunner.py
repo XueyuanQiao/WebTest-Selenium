@@ -14,13 +14,15 @@ import time
 import email.encoders
 import smtplib
 import paramiko
+from test_env.set_env import mail_env, test_env
 
 
 # 定义发送邮件函数
 def send_mail(message, all=0, fail=0, error=0):
-    env = 3  # 0为发送给全体研发，1为发送给自己，2为发送测试组
-    from_addr = "*************"
-    password = "***********"
+    env = mail_env(1)
+
+    from_addr = "postmaster@udesk.sendcloud.org"
+    password = "nkb4mS6JO37G"
     if env == 0:
         to_addr = "g_rd@udesk.cn"
     elif env == 1:
@@ -103,13 +105,13 @@ def upload_report(local, file):
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 
     # t1
-    ssh.connect("***********", port=22, username='webuser', pkey=private_key)
+    ssh.connect("101.201.110.250", port=22, username='webuser', pkey=private_key)
     sftp = ssh.open_sftp()
     sftp.put(local, '/srv/www/autotest/' + file)
     ssh.close()
 
     # t1b
-    ssh.connect("***********", port=22, username='webuser', pkey=private_key)
+    ssh.connect("47.93.174.16", port=22, username='webuser', pkey=private_key)
     sftp = ssh.open_sftp()
     sftp.put(local, '/srv/www/autotest/' + file)
     ssh.close()
@@ -131,8 +133,11 @@ suite_path = '.' + '/test_suites/'
 suite = unittest.TestLoader().discover(suite_path)
 
 if __name__ == '__main__':
-    i = 0
-    if i == 0:
+
+    report_env = test_env(1)
+
+    if report_env == 0:
+
         runner = HTMLTestReportCN.HTMLTestRunner(stream=fp, title="UI自动化测试报告", environment="http://brazil.udesk.cn",
                                                  tester="乔雪源,李雪刚",
                                                  description="用例执行情况")

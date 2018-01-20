@@ -5,4 +5,4 @@
 @time: 2017/8/21 10:43
 '''
 
-__all__ = ['set_driver', 'set_log', 'set_random']
+__all__ = ['set_driver', 'set_log', 'set_random', 'set_env']

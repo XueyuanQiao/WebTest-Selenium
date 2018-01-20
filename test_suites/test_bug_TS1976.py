@@ -4,7 +4,10 @@
 @author: Qiaoxueyuan
 @time: 2017/8/21 10:34
 '''
-from test_env import *
+from test_env.set_driver import init_driver,admin_login
+from test_env.set_log import init_log
+from test_env.set_env import test_env
+from test_env.set_random import random_string
 import unittest
 from time import sleep
 
@@ -13,28 +16,30 @@ class TestTS1976(unittest.TestCase):
     '''测试全局Bug：TS-1976'''
 
     def setUp(self):
-        self.driver = set_driver.init_driver()
-        self.log = set_log.init_log("TS1976")
-        self.env = 0  # 线上环境为0，测试环境为1
+        self.driver = init_driver()
+        self.log = init_log("TS1976")
+        self.env = test_env()
 
     def test_ts_1976(self):
         '''测试步骤：1.新建触发器，“通知-提醒目标”选择第二项;2.新建后再次进入编辑该触发器，观察“通知-提醒目标”是否仍为第二项(判断下拉框的value)'''
         driver = self.driver
         log = self.log
         # 管理员登录
-        if self.env == 1:
-            url = "linapp.udeskt1.com"
-            log.debug("设定测试环境为\"%s\"" % url)
-            set_driver.admin_login(driver, url)
-        else:
-            url = "brazil.udesk.cn"
-            log.debug("设定测试环境为\"%s\"" % url)
-            set_driver.admin_login(driver, url)
         try:
-            # 进入管理中心
-            driver.implicitly_wait(10)
-            driver.find_element_by_xpath("/html/body/div[3]/div[3]/div/ul/li[9]").click()
-            log.debug("管理员登录成功")
+            if self.env == 1:
+                url = "linapp.udeskt1.com"
+                log.debug("设定测试环境为\"%s\"" % url)
+                admin_login(driver, url)
+                driver.implicitly_wait(10)
+                driver.find_element_by_xpath("/html/body/div[3]/div[3]/div/ul/li[8]").click()
+                log.debug("管理员登录成功")
+            else:
+                url = "brazil.udesk.cn"
+                log.debug("设定测试环境为\"%s\"" % url)
+                admin_login(driver, url)
+                driver.implicitly_wait(10)
+                driver.find_element_by_xpath("/html/body/div[3]/div[3]/div/ul/li[9]").click()
+                log.debug("管理员登录成功")
         except:
             log.error("管理员登录失败！")
             self.assertTrue(False, "TS-1976自动化测试失败!")
@@ -43,12 +48,15 @@ class TestTS1976(unittest.TestCase):
             # 下拉滚动条使得触发器可以点击
             driver.execute_script("document.querySelector('.ud-nav').scrollTop = 3000")
             # 进入触发器界面
-            driver.find_element_by_xpath("/html/body/div[5]/div/nav/dl/dd[4]/a[5]").click()
+            if self.env == 1:
+                driver.find_element_by_xpath("/html/body/div[5]/div/nav/dl/dd[4]/a[5]").click()
+            else:
+                driver.find_element_by_xpath("/html/body/div[5]/div/nav/dl/dd[4]/a[4]").click()
             sleep(1)
             driver.find_element_by_xpath("/html/body/div[5]/div/div/div/div[3]/div/div/a[1]").click()
             sleep(1)
             log.debug("新建触发器...")
-            name = set_random.random_string()
+            name = random_string()
             # 设置触发器
             sleep(2)
             driver.find_element_by_xpath("/html/body/div[5]/div/div/div/div[2]/div[1]/div/input").send_keys(name)
